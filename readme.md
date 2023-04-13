@@ -28,12 +28,12 @@
 
 1. In the static web app, add the connection string as an application setting named `COSMOSDB__CONNECTIONSTRING`.
 
+1. Get the deployment token from the static web app.
+
 1. Run the Static Web Apps CLI again:
 
     ```bash
-    swa build
-
-    swa deploy
+    swa deploy --deployment-token <token> --env production
     ```
 
     > **Tip**: You may need to provide parameters to deploy such as `--tenant-id` and `--subscription-id`
