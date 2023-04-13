@@ -20,7 +20,7 @@ namespace Cosmos.Example.Api
             collectionName: PRODUCTS_CONTAINER_NAME,
             ConnectionStringSetting = "COSMOSDB:CONNECTIONSTRING",
             LeaseCollectionName = LEASE_CONTAINER_NAME,
-            LeaseCollectionPrefix = nameof(ReadProductPrices), 
+            LeaseCollectionPrefix = nameof(ReadProductPrices),
             CreateLeaseCollectionIfNotExists = true)] IReadOnlyList<Product> products)
         {
             if (products is not null && products.Count > 0)

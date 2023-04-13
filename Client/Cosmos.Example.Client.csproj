@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cosmos.Example.Shared\Cosmos.Example.Shared.csproj" />
+    <ProjectReference Include="..\Shared\Cosmos.Example.Shared.csproj" />
   </ItemGroup>
 
 </Project>

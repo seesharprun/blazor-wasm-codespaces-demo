@@ -19,7 +19,7 @@ namespace Cosmos.Example.Api
             databaseName: DATABASE_NAME,
             collectionName: PEOPLE_CONTAINER_NAME,
             ConnectionStringSetting = "COSMOSDB:CONNECTIONSTRING",
-            LeaseCollectionName = LEASE_CONTAINER_NAME, 
+            LeaseCollectionName = LEASE_CONTAINER_NAME,
             CreateLeaseCollectionIfNotExists = true)] IReadOnlyList<Person> people)
         {
             if (people is not null && people.Count > 0)
