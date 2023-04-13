@@ -1,0 +1,51 @@
+{
+    "build": {
+        "dockerfile": "./Dockerfile",
+        "context": ".",
+        "args": {
+            "VARIANT": "7.0"
+        }
+    },
+    "forwardPorts": [
+        5000,
+        7071,
+        4280
+    ],
+    "features": {
+        "ghcr.io/devcontainers/features/azure-cli:1": {
+            "version": "latest",
+            "installBicep": true
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "18"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+				"ms-dotnettools.csharp",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"ms-dotnettools.blazorwasm-companion"
+			],
+            "settings": {
+				"omnisharp.defaultLaunchSolution": "Cosmos.Example.sln",
+				"csharp.suppressDotnetRestoreNotification": true,
+				"csharp.suppressDotnetInstallWarning": true,
+				"csharp.suppressBuildAssetsNotification": true,
+				"codetour.promptForWorkspaceTours": false,
+				"codetour.recordMode": "pattern",
+				"codetour.showMarkers": false,
+                "explorer.sortOrder": "type",
+                "explorer.fileNesting.enabled": true,
+                "explorer.fileNesting.patterns": {
+                    "*.js": "${capture}.js.map",
+                    "*.razor": "${capture}.razor.cs,${capture}.razor.css"
+                }
+            }
+        }
+    },
+    "updateContentCommand": "/bin/bash ./.devcontainer/update-content.sh > ~/update-content.log"
+}

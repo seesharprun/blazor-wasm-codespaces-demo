@@ -1,0 +1,88 @@
+﻿@page "/"
+@using Cosmos.Example.Shared.Models;
+@inject IJSRuntime JSRuntime
+@inject HttpClient client
+
+<h2 class="display-2">Add person</h2>
+<div class="p-2 mx-5 my-2">
+    <label for="firstNameInput" class="form-label">First name</label>
+    <input id="firstNameInput" class="form-control" @bind="personFirstName"/>
+    <label for="lastNameInput" class="form-label">Last name</label>
+    <input id="lastNameInput" type="text" class="form-control" @bind="personLastName"/>
+    <button type="button" class="btn btn-primary mt-3" @onclick="SubmitPersonAsync">Submit</button>
+</div>
+<h2 class="display-2">Add product</h2>
+<div class="p-2 mx-5 my-2">
+    <label for="nameInput" class="form-label">Name</label>
+    <input id="nameInput" class="form-control" @bind="productName"/>
+    <label for="categorySelect" class="form-label">Category</label>
+    <select id="categorySelect" class="form-select" @bind="productCategory">
+        <option value="gloves">Gloves</option>
+        <option value="helmets">Helmets</option>
+        <option value="eyewear">Eyewear</option>            
+    </select>
+    <label for="priceRange" class="form-label">Price</label>
+    <label for="priceRange" class="form-label">(@productPriceFormatted)</label>
+    <input id="priceRange" type="range" class="form-range" min="0.5" step="0.5" max="25" @bind="productPrice"/>
+    <button type="button" class="btn btn-primary mt-3" @onclick="SubmitProductAsync">Submit</button>
+</div>
+
+@code {
+
+    private string? personFirstName { get; set; }
+
+    private string? personLastName { get; set; }
+
+    private string? productName { get; set; }
+
+    private string productCategory { get; set; } = "helmets";
+
+    private decimal productPrice { get; set; } = 15m;
+
+    private string productPriceFormatted { get => $"{productPrice:C}"; }
+
+    private string GetUniqueId() => $"{Guid.NewGuid()}";
+
+    private async Task LogAsync(string message)
+    {
+        await JSRuntime.InvokeVoidAsync("console.log", message);
+    }
+
+    private async Task SubmitPersonAsync()
+    {
+        if (String.IsNullOrEmpty(personFirstName) || String.IsNullOrEmpty(personLastName))
+        {
+            await LogAsync("No person");
+            return;
+        }
+        else
+        {
+            Person person = new(GetUniqueId(), personFirstName, personLastName);
+            var response = await client.PostAsJsonAsync("api/createperson", person);
+            Person? result = await response.Content.ReadFromJsonAsync<Person>();
+            if (result is not null)
+            {
+                await LogAsync($"[Created]\t{result}");
+            }
+        }
+    }
+
+    private async Task SubmitProductAsync()
+    {
+        if (String.IsNullOrEmpty(productName) || String.IsNullOrEmpty(productCategory))
+        {
+            await LogAsync("No product");
+            return;
+        }
+        else
+        {
+            Product product = new(GetUniqueId(), productName, productCategory, productPrice);
+            var response = await client.PostAsJsonAsync("api/createproduct", product);
+            Product? result = await response.Content.ReadFromJsonAsync<Product>();
+            if (result is not null)
+            {
+                await LogAsync($"[Created]\t{result}");
+            }
+        }
+    }
+}
