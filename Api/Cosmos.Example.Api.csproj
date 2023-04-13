@@ -32,7 +32,7 @@
   <Target Name="SkipUnmanagedDlls" BeforeTargets="_GenerateManagedToNative">
     <ItemGroup>
       <_WasmAssembliesInternal Remove="@(_WasmAssembliesInternal)" 
-        Condition="'%(_WasmAssembliesInternal.FileName)' == 'Cosmos.CRTCompat" />
+        Condition="'%(_WasmAssembliesInternal.FileName)' == 'Cosmos.CRTCompat'" />
     </ItemGroup>
   </Target>
 </Project>
