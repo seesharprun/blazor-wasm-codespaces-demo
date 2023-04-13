@@ -42,7 +42,8 @@
                 "explorer.fileNesting.enabled": true,
                 "explorer.fileNesting.patterns": {
                     "*.js": "${capture}.js.map",
-                    "*.razor": "${capture}.razor.cs,${capture}.razor.css"
+                    "*.razor": "${capture}.razor.cs,${capture}.razor.css",
+                    "appsettings.json": "appsettings.development.json,appsettings.production.json"
                 }
             }
         }

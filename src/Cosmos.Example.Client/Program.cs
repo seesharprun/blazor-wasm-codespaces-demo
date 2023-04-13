@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.Services.AddOptions<Api>().Bind(builder.Configuration.GetSection(nameof(Api)));
-builder.Services.AddScoped<HttpClient>((provider) => 
+builder.Services.AddScoped<HttpClient>((provider) =>
 {
     var apiOptions = provider.GetRequiredService<IOptions<Api>>();
     if (apiOptions.Value is null)
@@ -16,7 +16,6 @@ builder.Services.AddScoped<HttpClient>((provider) =>
     else
     {
         string overridenApiEndpoint = apiOptions.Value?.Endpoint ?? String.Empty;
-        Console.WriteLine($"API OPTIONS:\t{apiOptions.Value}");
         string baseAddress = String.IsNullOrEmpty(overridenApiEndpoint) ? builder.HostEnvironment.BaseAddress : overridenApiEndpoint;
         return new HttpClient { BaseAddress = new Uri(baseAddress) };
     }

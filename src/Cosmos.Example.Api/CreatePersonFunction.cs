@@ -19,14 +19,14 @@ public class CreatePerson
     }
 
     [Function("CreatePerson")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post")]HttpRequestData request)
+    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData request)
     {
-        _logger.LogInformation("Create new person triggered");
-
         Person? person = await request.ReadFromJsonAsync<Person>();
 
         if (person is not null)
         {
+            _logger.LogInformation("New person op:\t{id}", person.Id);
+
             Person result = await _cosmosService.CreatePersonAsync(person);
 
             var response = request.CreateResponse(HttpStatusCode.Created);
