@@ -29,4 +29,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\Cosmos.Example.Shared.csproj" />
   </ItemGroup>
+  <Target Name="SkipUnmanagedDlls" BeforeTargets="_GenerateManagedToNative">
+    <ItemGroup>
+      <_WasmAssembliesInternal Remove="@(_WasmAssembliesInternal)" 
+        Condition="'%(_WasmAssembliesInternal.FileName)' == 'Cosmos.CRTCompat' or OTHER NATIVE DLLs" />
+    </ItemGroup>
+  </Target>
 </Project>
