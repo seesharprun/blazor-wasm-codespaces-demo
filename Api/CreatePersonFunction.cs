@@ -23,7 +23,7 @@ public class CreatePerson
         CreateIfNotExists = true)]
     public async Task<Person> Run(
         [HttpTrigger(
-            authLevel: AuthorizationLevel.Anonymous, 
+            authLevel: AuthorizationLevel.Anonymous,
             methods: "post")] HttpRequestData request)
     {
         Person? person = await request.ReadFromJsonAsync<Person>();

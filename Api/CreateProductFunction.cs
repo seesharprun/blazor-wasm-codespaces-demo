@@ -23,7 +23,7 @@ public class CreateProduct
         CreateIfNotExists = true)]
     public async Task<Product> Run(
         [HttpTrigger(
-            authLevel: AuthorizationLevel.Anonymous, 
+            authLevel: AuthorizationLevel.Anonymous,
             methods: "post")] HttpRequestData request)
     {
         Product? product = await request.ReadFromJsonAsync<Product>();
