@@ -1,42 +1,41 @@
-using System.Net;
+using Cosmos.Example.Shared.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Cosmos.Example.Api.Services;
-using Cosmos.Example.Shared.Models;
+using static Cosmos.Example.Shared.Constants.Cosmos;
 
 namespace Cosmos.Example.Api;
 
 public class CreateProduct
 {
     private readonly ILogger _logger;
-    private readonly ICosmosService _cosmosService;
 
-    public CreateProduct(ILoggerFactory loggerFactory, ICosmosService cosmosService)
+    public CreateProduct(ILoggerFactory loggerFactory)
     {
         _logger = loggerFactory.CreateLogger<CreateProduct>();
-        _cosmosService = cosmosService;
     }
 
     [Function("CreateProduct")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData request)
+    [CosmosDBOutput(
+        databaseName: DATABASE_NAME,
+        containerName: PRODUCTS_CONTAINER_NAME,
+        Connection = "COSMOSDB:CONNECTIONSTRING",
+        CreateIfNotExists = true)]
+    public async Task<Product> Run(
+        [HttpTrigger(
+            authLevel: AuthorizationLevel.Anonymous, 
+            methods: "post")] HttpRequestData request)
     {
         Product? product = await request.ReadFromJsonAsync<Product>();
 
         if (product is not null)
         {
-            _logger.LogInformation("New product op:\t{id}", product.Id);
-
-            Product result = await _cosmosService.CreateProductAsync(product);
-
-            var response = request.CreateResponse(HttpStatusCode.Created);
-            await response.WriteAsJsonAsync(result);
-
-            return response;
+            _logger.LogInformation("[CREATING PRODUCT]\t{person}", product);
+            return product;
         }
         else
         {
-            return request.CreateResponse(HttpStatusCode.BadRequest);
+            throw new ArgumentNullException(nameof(product));
         }
     }
 }

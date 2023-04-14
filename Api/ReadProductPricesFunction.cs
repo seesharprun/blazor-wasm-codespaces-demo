@@ -17,18 +17,18 @@ namespace Cosmos.Example.Api
         [Function("ReadProductPrices")]
         public void Run([CosmosDBTrigger(
             databaseName: DATABASE_NAME,
-            collectionName: PRODUCTS_CONTAINER_NAME,
-            ConnectionStringSetting = "COSMOSDB:CONNECTIONSTRING",
-            LeaseCollectionName = LEASE_CONTAINER_NAME,
-            LeaseCollectionPrefix = nameof(ReadProductPrices),
-            CreateLeaseCollectionIfNotExists = true)] IReadOnlyList<Product> products)
+            containerName: PRODUCTS_CONTAINER_NAME,
+            Connection = "COSMOSDB:CONNECTIONSTRING",
+            LeaseContainerName = LEASE_CONTAINER_NAME,
+            LeaseContainerPrefix = nameof(ReadProductPrices),
+            CreateLeaseContainerIfNotExists = true)] IReadOnlyList<Product> products)
         {
             if (products is not null && products.Count > 0)
             {
                 _logger.LogInformation("[READING PRODUCT PRICES]\tDocuments modified: {count}", products.Count);
                 foreach (var product in products)
                 {
-                    _logger.LogInformation("[PRODUCT PRICE - {id}]\t{price}", product.Id, product.Price);
+                    _logger.LogInformation("[PRODUCT PRICE - {id}]\t{price}", product.id, product.price);
                 }
             }
         }

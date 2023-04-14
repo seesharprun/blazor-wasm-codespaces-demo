@@ -8,11 +8,10 @@
     <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.32.3" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.8.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.CosmosDB" Version="3.0.9" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.13.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.CosmosDB" Version="4.0.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.7.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.9.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -29,10 +28,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\Cosmos.Example.Shared.csproj" />
   </ItemGroup>
-  <Target Name="SkipUnmanagedDlls" BeforeTargets="_GenerateManagedToNative">
-    <ItemGroup>
-      <_WasmAssembliesInternal Remove="@(_WasmAssembliesInternal)" 
-        Condition="'%(_WasmAssembliesInternal.FileName)' == 'Cosmos.CRTCompat'" />
-    </ItemGroup>
-  </Target>
 </Project>

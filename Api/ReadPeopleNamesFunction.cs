@@ -17,17 +17,17 @@ namespace Cosmos.Example.Api
         [Function("ReadPeopleNames")]
         public void Run([CosmosDBTrigger(
             databaseName: DATABASE_NAME,
-            collectionName: PEOPLE_CONTAINER_NAME,
-            ConnectionStringSetting = "COSMOSDB:CONNECTIONSTRING",
-            LeaseCollectionName = LEASE_CONTAINER_NAME,
-            CreateLeaseCollectionIfNotExists = true)] IReadOnlyList<Person> people)
+            containerName: PEOPLE_CONTAINER_NAME,
+            Connection = "COSMOSDB:CONNECTIONSTRING",
+            LeaseContainerName = LEASE_CONTAINER_NAME,
+            CreateLeaseContainerIfNotExists = true)] IReadOnlyList<Person> people)
         {
             if (people is not null && people.Count > 0)
             {
                 _logger.LogInformation("[READING PEOPLE FIRST NAMES]\tDocuments modified: {count}", people.Count);
                 foreach (var person in people)
                 {
-                    _logger.LogInformation("[PERSON FIRST NAME - {id}]\t{firstName}", person.Id, person.FirstName);
+                    _logger.LogInformation("[PERSON FIRST NAME - {id}]\t{firstName}", person.id, person.firstName);
                 }
             }
         }
