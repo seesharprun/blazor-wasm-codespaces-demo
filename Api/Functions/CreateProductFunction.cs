@@ -23,7 +23,7 @@ public static class CreateProduct
         ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(input);
-        
+
         logger.LogInformation("[CREATING PRODUCT]\t{person}", input);
         output = input;
 

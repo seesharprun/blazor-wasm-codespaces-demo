@@ -23,7 +23,7 @@ public static class CreatePersonFunction
         ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(input);
-        
+
         logger.LogInformation("[CREATING PERSON]\t{person}", input);
         output = input;
 
