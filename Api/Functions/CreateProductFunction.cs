@@ -18,6 +18,7 @@ public static class CreateProduct
         [CosmosDB(
             databaseName: DATABASE_NAME,
             containerName: PRODUCTS_CONTAINER_NAME,
+            PartitionKey = PRODUCTS_CONTAINER_PARTITION_KEY_PATH,
             Connection = "AZURE_COSMOS_DB_CONNECTION_STRING",
             CreateIfNotExists = true)]out Product output,
         ILogger logger)

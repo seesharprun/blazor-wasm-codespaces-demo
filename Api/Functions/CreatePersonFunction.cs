@@ -18,6 +18,7 @@ public static class CreatePersonFunction
         [CosmosDB(
             databaseName: DATABASE_NAME,
             containerName: PEOPLE_CONTAINER_NAME,
+            PartitionKey = PEOPLE_CONTAINER_PARTITION_KEY_PATH,
             Connection = "AZURE_COSMOS_DB_CONNECTION_STRING",
             CreateIfNotExists = true)]out Person output,
         ILogger logger)
