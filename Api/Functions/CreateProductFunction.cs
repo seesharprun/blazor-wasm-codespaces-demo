@@ -1,41 +1,32 @@
 using Cosmos.Example.Shared.Models;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using static Cosmos.Example.Shared.Constants.Cosmos;
 
-namespace Cosmos.Example.Api;
+namespace Cosmos.Example.Api.Functions;
 
-public class CreateProduct
+public static class CreateProduct
 {
-    private readonly ILogger _logger;
-
-    public CreateProduct(ILoggerFactory loggerFactory)
-    {
-        _logger = loggerFactory.CreateLogger<CreateProduct>();
-    }
-
-    [Function("CreateProduct")]
-    [CosmosDBOutput(
-        databaseName: DATABASE_NAME,
-        containerName: PRODUCTS_CONTAINER_NAME,
-        Connection = "COSMOSDB:CONNECTIONSTRING",
-        CreateIfNotExists = true)]
-    public async Task<Product> Run(
+    [FunctionName("CreateProduct")]
+    public static IActionResult Run(
         [HttpTrigger(
             authLevel: AuthorizationLevel.Anonymous,
-            methods: "post")] HttpRequestData request)
+            methods: "post")] Product input,
+        [CosmosDB(
+            databaseName: DATABASE_NAME,
+            containerName: PRODUCTS_CONTAINER_NAME,
+            Connection = "AZURE_COSMOS_DB_CONNECTION_STRING",
+            CreateIfNotExists = true)]out Product output,
+        ILogger logger)
     {
-        Product? product = await request.ReadFromJsonAsync<Product>();
+        ArgumentNullException.ThrowIfNull(input);
+        
+        logger.LogInformation("[CREATING PRODUCT]\t{person}", input);
+        output = input;
 
-        if (product is not null)
-        {
-            _logger.LogInformation("[CREATING PRODUCT]\t{person}", product);
-            return product;
-        }
-        else
-        {
-            throw new ArgumentNullException(nameof(product));
-        }
+        return new ObjectResult(input) { StatusCode = StatusCodes.Status201Created };
     }
 }

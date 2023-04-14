@@ -1,41 +1,32 @@
 using Cosmos.Example.Shared.Models;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using static Cosmos.Example.Shared.Constants.Cosmos;
 
-namespace Cosmos.Example.Api;
+namespace Cosmos.Example.Api.Functions;
 
-public class CreatePerson
+public static class CreatePersonFunction
 {
-    private readonly ILogger _logger;
-
-    public CreatePerson(ILoggerFactory loggerFactory)
-    {
-        _logger = loggerFactory.CreateLogger<CreatePerson>();
-    }
-
-    [Function("CreatePerson")]
-    [CosmosDBOutput(
-        databaseName: DATABASE_NAME,
-        containerName: PEOPLE_CONTAINER_NAME,
-        Connection = "COSMOSDB:CONNECTIONSTRING",
-        CreateIfNotExists = true)]
-    public async Task<Person> Run(
+    [FunctionName("CreatePerson")]
+    public static IActionResult Run(
         [HttpTrigger(
             authLevel: AuthorizationLevel.Anonymous,
-            methods: "post")] HttpRequestData request)
+            methods: "post")] Person input,
+        [CosmosDB(
+            databaseName: DATABASE_NAME,
+            containerName: PEOPLE_CONTAINER_NAME,
+            Connection = "AZURE_COSMOS_DB_CONNECTION_STRING",
+            CreateIfNotExists = true)]out Person output,
+        ILogger logger)
     {
-        Person? person = await request.ReadFromJsonAsync<Person>();
+        ArgumentNullException.ThrowIfNull(input);
+        
+        logger.LogInformation("[CREATING PERSON]\t{person}", input);
+        output = input;
 
-        if (person is not null)
-        {
-            _logger.LogInformation("[CREATING PERSON]\t{person}", person);
-            return person;
-        }
-        else
-        {
-            throw new ArgumentNullException(nameof(person));
-        }
+        return new ObjectResult(input) { StatusCode = StatusCodes.Status201Created };
     }
 }
