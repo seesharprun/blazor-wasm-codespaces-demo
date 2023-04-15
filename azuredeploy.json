@@ -1,0 +1,296 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.16.2.56959",
+      "templateHash": "15132409770510695915"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "East US 2",
+      "allowedValues": [
+        "East US 2",
+        "West US 2",
+        "Central US",
+        "West Europe",
+        "East Asia"
+      ],
+      "metadata": {
+        "description": "Location where all resources will be deployed. This value defaults to the **West US 2** region."
+      }
+    },
+    "name": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id)]",
+      "maxLength": 15,
+      "minLength": 5,
+      "metadata": {
+        "description": "Unique name for the chat application.  The name is required to be unique as it will be used as a prefix for the names of these resources:\r\n- Azure Cosmos DB\r\n- Azure Static Web App\r\n- Azure Functions\r\nThe name defaults to a unique string generated from the resource group identifier.\r\n"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2022-08-15",
+      "name": "[format('{0}nosql', parameters('name'))]",
+      "location": "[parameters('location')]",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session"
+        },
+        "databaseAccountOfferType": "Standard",
+        "locations": [
+          {
+            "failoverPriority": 0,
+            "isZoneRedundant": false,
+            "locationName": "[parameters('location')]"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2022-08-15",
+      "name": "[format('{0}/{1}', format('{0}nosql', parameters('name')), 'cosmicworks')]",
+      "properties": {
+        "resource": {
+          "id": "cosmicworks"
+        },
+        "options": {
+          "throughput": 400
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}nosql', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2022-08-15",
+      "name": "[format('{0}/{1}/{2}', format('{0}nosql', parameters('name')), 'cosmicworks', 'products')]",
+      "properties": {
+        "resource": {
+          "id": "products",
+          "partitionKey": {
+            "paths": [
+              "/category"
+            ]
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', format('{0}nosql', parameters('name')), 'cosmicworks')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2022-08-15",
+      "name": "[format('{0}/{1}/{2}', format('{0}nosql', parameters('name')), 'cosmicworks', 'people')]",
+      "properties": {
+        "resource": {
+          "id": "people",
+          "partitionKey": {
+            "paths": [
+              "/lastName"
+            ]
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', format('{0}nosql', parameters('name')), 'cosmicworks')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2022-08-15",
+      "name": "[format('{0}/{1}/{2}', format('{0}nosql', parameters('name')), 'cosmicworks', 'changefeed-leases')]",
+      "properties": {
+        "resource": {
+          "id": "changefeed-leases",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ]
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', format('{0}nosql', parameters('name')), 'cosmicworks')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[format('{0}insights', parameters('name'))]",
+      "location": "[parameters('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "Request_Source": "rest"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}plan', parameters('name'))]",
+      "location": "[parameters('location')]",
+      "kind": "linux",
+      "sku": {
+        "name": "B1"
+      },
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}storage', parameters('name'))]",
+      "location": "[parameters('location')]",
+      "kind": "Storage",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "properties": {
+        "supportsHttpsTrafficOnly": true,
+        "minimumTlsVersion": "TLS1_2"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}functions', parameters('name'))]",
+      "location": "[parameters('location')]",
+      "kind": "functionapp,linux",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}plan', parameters('name')))]",
+        "httpsOnly": true,
+        "siteConfig": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', format('{0}plan', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/{1}', format('{0}functions', parameters('name')), 'appsettings')]",
+      "kind": "string",
+      "properties": {
+        "AzureWebJobsStorage": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('{0}storage', parameters('name')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('{0}storage', parameters('name'))), '2022-09-01').keys[0].value)]",
+        "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('{0}storage', parameters('name')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('{0}storage', parameters('name'))), '2022-09-01').keys[0].value)]",
+        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', format('{0}insights', parameters('name'))), '2020-02-02').InstrumentationKey]",
+        "APPLICATIONINSIGHTS_CONNECTION_STRING": "[format('InstrumentationKey={0};IngestionEndpoint=https://eastus2-0.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/', reference(resourceId('Microsoft.Insights/components', format('{0}insights', parameters('name'))), '2020-02-02').InstrumentationKey)]",
+        "FUNCTIONS_EXTENSION_VERSION": "~4",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "PROJECT": "Api/Cosmos.Example.Api.csproj",
+        "WEBSITE_CONTENTSHARE": "[toLower(format('{0}functionshare', parameters('name')))]",
+        "AZURE_COSMOS_DB_CONNECTION_STRING": "[format('AccountEndpoint={0};AccountKey={1};', reference(resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}nosql', parameters('name'))), '2022-08-15').documentEndpoint, listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}nosql', parameters('name'))), '2022-08-15').primaryMasterKey)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', format('{0}insights', parameters('name')))]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}nosql', parameters('name')))]",
+        "[resourceId('Microsoft.Web/sites', format('{0}functions', parameters('name')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}storage', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}', format('{0}functions', parameters('name')), 'web')]",
+      "kind": "string",
+      "properties": {
+        "linuxFxVersion": "DOTNET|6.0",
+        "minTlsVersion": "1.2",
+        "alwaysOn": true,
+        "cors": {
+          "allowedOrigins": [
+            "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', format('{0}web', parameters('name'))), '2022-09-01').defaultHostName)]",
+            "https://portal.azure.com"
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}functions', parameters('name')))]",
+        "[resourceId('Microsoft.Web/sites', format('{0}web', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/sourcecontrols",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}', format('{0}functions', parameters('name')), 'web')]",
+      "properties": {
+        "repoUrl": "https://github.com/seesharprun/blazor-wasm-codespaces-demo.git",
+        "branch": "main",
+        "isManualIntegration": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}functions', parameters('name')))]",
+        "[resourceId('Microsoft.Web/sites/config', format('{0}functions', parameters('name')), 'web')]",
+        "[resourceId('Microsoft.Web/sites/config', format('{0}functions', parameters('name')), 'appsettings')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}web', parameters('name'))]",
+      "kind": "app,linux",
+      "location": "[parameters('location')]",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}plan', parameters('name')))]",
+        "httpsOnly": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', format('{0}plan', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}', format('{0}web', parameters('name')), 'web')]",
+      "kind": "string",
+      "properties": {
+        "minTlsVersion": "1.2",
+        "linuxFxVersion": "DOTNETCORE|7.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}web', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/{1}', format('{0}web', parameters('name')), 'appsettings')]",
+      "kind": "string",
+      "properties": {
+        "API__ENDPOINT": "[format('https://{0}/', reference(resourceId('Microsoft.Web/sites', format('{0}functions', parameters('name'))), '2022-09-01').defaultHostName)]",
+        "PROJECT": "Client/Cosmos.Example.Client.csproj"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}functions', parameters('name')))]",
+        "[resourceId('Microsoft.Web/sites', format('{0}web', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/sourcecontrols",
+      "apiVersion": "2021-03-01",
+      "name": "[format('{0}/{1}', format('{0}web', parameters('name')), 'web')]",
+      "properties": {
+        "repoUrl": "https://github.com/seesharprun/blazor-wasm-codespaces-demo.git",
+        "branch": "main",
+        "isManualIntegration": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}web', parameters('name')))]",
+        "[resourceId('Microsoft.Web/sites/config', format('{0}web', parameters('name')), 'web')]",
+        "[resourceId('Microsoft.Web/sites/config', format('{0}web', parameters('name')), 'appsettings')]"
+      ]
+    }
+  ]
+}

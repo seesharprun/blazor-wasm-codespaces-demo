@@ -4,7 +4,6 @@
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PublishReadyToRun>true</PublishReadyToRun>
     <RootNamespace>Cosmos.Example.Api</RootNamespace>
   </PropertyGroup>
   <ItemGroup>

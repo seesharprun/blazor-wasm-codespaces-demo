@@ -107,12 +107,11 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 resource hostingPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
-  name: '${name}consumption'
+  name: '${name}plan'
   location: location
   kind: 'linux'
   sku: {
-    name: 'Y1'
-    tier: 'Dynamic'
+    name: 'B1'
   }
   properties: {
     reserved: true
@@ -122,10 +121,10 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: '${name}storage'
   location: location
+  kind: 'Storage'
   sku: {
     name: 'Standard_LRS'
   }
-  kind: 'Storage'
   properties: {
     supportsHttpsTrafficOnly: true
     minimumTlsVersion: 'TLS1_2'
@@ -135,10 +134,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
   name: '${name}functions'
   location: location
-  kind: 'functionapp'
+  kind: 'functionapp,linux'
   properties: {
     serverFarmId: hostingPlan.id
     httpsOnly: true
+    siteConfig: {}
   }
 }
 
@@ -159,24 +159,29 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2022-03-01' = {
   }
 }
 
-resource functionAppConfiguration 'Microsoft.Web/sites/config@2022-03-01' = {
+resource functionAppConfiguration 'Microsoft.Web/sites/config@2022-09-01' = {
   parent: functionApp
   name: 'web'
   kind: 'string'
   properties: {
-    minTlsVersion: '1.2'
     linuxFxVersion: 'DOTNET|6.0'
+    minTlsVersion: '1.2'
+    alwaysOn: true
     cors: {
       allowedOrigins: [
-        'https://${staticWebApp.properties.defaultHostname}'
+        'https://${webApp.properties.defaultHostName}'
         'https://portal.azure.com'
       ]
     }
   }
 }
 
-resource functionAppDeployment 'Microsoft.Web/sites/sourcecontrols@2021-03-01' = {
+resource functionAppDeployment 'Microsoft.Web/sites/sourcecontrols@2022-09-01' = {
   parent: functionApp
+  dependsOn: [
+    functionAppSettings
+    functionAppConfiguration
+  ]
   name: 'web'
   properties: {
     repoUrl: 'https://github.com/seesharprun/blazor-wasm-codespaces-demo.git'
@@ -185,28 +190,46 @@ resource functionAppDeployment 'Microsoft.Web/sites/sourcecontrols@2021-03-01' =
   }
 }
 
-resource staticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
+resource webApp 'Microsoft.Web/sites@2022-09-01' = {
   name: '${name}web'
+  kind: 'app,linux'
   location: location
-  sku: {
-    name: 'Free'
-  }
   properties: {
-    repositoryUrl: 'https://github.com/seesharprun/blazor-wasm-codespaces-demo.git'
-    branch: 'main'
-    buildProperties: {
-      appLocation: 'Client'
-      outputLocation: 'bin\\wwwroot'
-      appBuildCommand: 'dotnet publish -c Release -o bin'
-    }
+    serverFarmId: hostingPlan.id
+    httpsOnly: true
   }
 }
 
-resource staticWebAppConfiguration 'Microsoft.Web/staticSites/config@2022-09-01' = {
-  parent: staticWebApp
+resource webAppConfiguration 'Microsoft.Web/sites/config@2022-09-01' = {
+  parent: webApp
+  name: 'web'
+  kind: 'string'
+  properties: {
+    minTlsVersion: '1.2'
+    linuxFxVersion: 'DOTNETCORE|7.0'
+  }
+}
+
+resource webAppSettings 'Microsoft.Web/sites/config@2022-03-01' = {
+  parent: webApp
   name: 'appsettings'
   kind: 'string'
   properties: {
     API__ENDPOINT: 'https://${functionApp.properties.defaultHostName}/'
+    PROJECT: 'Client/Cosmos.Example.Client.csproj'
+  }
+}
+
+resource webAppDeployment 'Microsoft.Web/sites/sourcecontrols@2021-03-01' = {
+  parent: webApp
+  dependsOn: [
+    webAppSettings
+    webAppConfiguration
+  ]
+  name: 'web'
+  properties: {
+    repoUrl: 'https://github.com/seesharprun/blazor-wasm-codespaces-demo.git'
+    branch: 'main'
+    isManualIntegration: true
   }
 }
