@@ -109,6 +109,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 resource hostingPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: '${name}consumption'
   location: location
+  kind: 'linux'
   sku: {
     name: 'Y1'
     tier: 'Dynamic'
@@ -127,6 +128,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'Storage'
   properties: {
     supportsHttpsTrafficOnly: true
+    minimumTlsVersion: 'TLS1_2'
   }
 }
 
@@ -160,7 +162,8 @@ resource functionAppConfiguration 'Microsoft.Web/sites/config@2022-03-01' = {
   parent: functionApp
   name: 'web'
   properties: {
-    netFrameworkVersion: 'v6.0'
+    minTlsVersion: '1.2'
+    linuxFxVersion: 'DOTNET|6.0'
   }
 }
 
