@@ -5,22 +5,15 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.2.56959",
-      "templateHash": "6235285064508885730"
+      "templateHash": "14037844706004302292"
     }
   },
   "parameters": {
     "location": {
       "type": "string",
-      "defaultValue": "East US 2",
-      "allowedValues": [
-        "East US 2",
-        "West US 2",
-        "Central US",
-        "West Europe",
-        "East Asia"
-      ],
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
-        "description": "Location where all resources will be deployed. This value defaults to the East US 2 region."
+        "description": "Location where all resources will be deployed. This value defaults to the same location as the resource group."
       }
     },
     "name": {
