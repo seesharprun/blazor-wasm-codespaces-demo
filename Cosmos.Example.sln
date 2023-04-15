@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cosmos.Example.Client", "Cl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cosmos.Example.Shared", "Shared\Cosmos.Example.Shared.csproj", "{F22E735B-1E0F-42B8-8D54-858123CBBED0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cosmos.Example.Feed", "Feed\Cosmos.Example.Feed.csproj", "{A260970D-65D8-4972-80C9-D32BA44ABF7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{F22E735B-1E0F-42B8-8D54-858123CBBED0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F22E735B-1E0F-42B8-8D54-858123CBBED0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F22E735B-1E0F-42B8-8D54-858123CBBED0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A260970D-65D8-4972-80C9-D32BA44ABF7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A260970D-65D8-4972-80C9-D32BA44ABF7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A260970D-65D8-4972-80C9-D32BA44ABF7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A260970D-65D8-4972-80C9-D32BA44ABF7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{94EE9CFD-1C2F-4BC4-9BAE-D892D4408646} = {F3419BC5-1DB2-4273-893A-54A61FEA297B}

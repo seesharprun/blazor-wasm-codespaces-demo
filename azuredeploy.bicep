@@ -152,7 +152,7 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2022-03-01' = {
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'InstrumentationKey=${applicationInsights.properties.InstrumentationKey};IngestionEndpoint=https://eastus2-0.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/'
     FUNCTIONS_EXTENSION_VERSION: '~4'
     FUNCTIONS_WORKER_RUNTIME: 'dotnet'
-    PROJECT: 'Api/Cosmos.Example.Api.csproj'
+    PROJECT: 'Feed/Cosmos.Example.Feed.csproj'
     WEBSITE_CONTENTSHARE: toLower('${name}functionshare')
     AZURE_COSMOS_DB_CONNECTION_STRING: 'AccountEndpoint=${cosmosDbAccount.properties.documentEndpoint};AccountKey=${cosmosDbAccount.listKeys().primaryMasterKey};'
   }
@@ -166,7 +166,8 @@ resource functionAppConfiguration 'Microsoft.Web/sites/config@2022-03-01' = {
     linuxFxVersion: 'DOTNET|6.0'
     cors: {
       allowedOrigins: [
-        '*'
+        'https://${staticWebApp.properties.defaultHostName}'
+        'https://portal.azure.com'
       ]
     }
   }
@@ -183,5 +184,25 @@ resource functionAppDeployment 'Microsoft.Web/sites/sourcecontrols@2021-03-01' =
     repoUrl: 'https://github.com/seesharprun/blazor-wasm-codespaces-demo.git'
     branch: 'main'
     isManualIntegration: true
+  }
+}
+
+resource staticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
+  name: '${name}web'
+  location: location
+  sku: {
+    name: 'Free'
+  }
+  properties: {
+    provider: 'custom'
+    repositoryUrl: 'https://github.com/seesharprun/blazor-wasm-codespaces-demo.git'
+    branch: 'main'
+    buildProperties: {
+      appLocation: 'Client'
+      apiLocation: 'Api'
+      outputLocation: 'bin\\wwwroot'
+      appBuildCommand: 'dotnet publish -c Release -o bin'
+      apiBuildCommand: 'dotnet publish -c Release'
+    }
   }
 }
