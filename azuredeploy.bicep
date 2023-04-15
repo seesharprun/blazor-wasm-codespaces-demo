@@ -1,4 +1,4 @@
-@description('Location where all resources will be deployed. This value defaults to the **West US 2** region.')
+@description('Location where all resources will be deployed. This value defaults to the East US 2 region.')
 @allowed([
   'East US 2'
   'West US 2'
@@ -8,13 +8,7 @@
 ])
 param location string = 'East US 2'
 
-@description('''
-Unique name for the chat application.  The name is required to be unique as it will be used as a prefix for the names of these resources:
-- Azure Cosmos DB
-- Azure Static Web App
-- Azure Functions
-The name defaults to a unique string generated from the resource group identifier.
-''')
+@description('Unique name for the chat application.  The name is required to be unique as it will be used as a prefix for the names of these resources: Azure Cosmos DB, Azure Static Web App, and Azure Functions. The name defaults to a unique string generated from the resource group identifier.')
 @minLength(5)
 @maxLength(15)
 param name string = uniqueString(resourceGroup().id)

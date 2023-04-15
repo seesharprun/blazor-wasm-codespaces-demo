@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.2.56959",
-      "templateHash": "15132409770510695915"
+      "templateHash": "6235285064508885730"
     }
   },
   "parameters": {
@@ -20,7 +20,7 @@
         "East Asia"
       ],
       "metadata": {
-        "description": "Location where all resources will be deployed. This value defaults to the **West US 2** region."
+        "description": "Location where all resources will be deployed. This value defaults to the East US 2 region."
       }
     },
     "name": {
@@ -29,7 +29,7 @@
       "maxLength": 15,
       "minLength": 5,
       "metadata": {
-        "description": "Unique name for the chat application.  The name is required to be unique as it will be used as a prefix for the names of these resources:\r\n- Azure Cosmos DB\r\n- Azure Static Web App\r\n- Azure Functions\r\nThe name defaults to a unique string generated from the resource group identifier.\r\n"
+        "description": "Unique name for the chat application.  The name is required to be unique as it will be used as a prefix for the names of these resources: Azure Cosmos DB, Azure Static Web App, and Azure Functions. The name defaults to a unique string generated from the resource group identifier."
       }
     }
   },
