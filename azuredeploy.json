@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.2.56959",
-      "templateHash": "14037844706004302292"
+      "templateHash": "11436815853913980749"
     }
   },
   "parameters": {
@@ -133,12 +133,8 @@
       "apiVersion": "2022-09-01",
       "name": "[format('{0}plan', parameters('name'))]",
       "location": "[parameters('location')]",
-      "kind": "linux",
       "sku": {
         "name": "B1"
-      },
-      "properties": {
-        "reserved": true
       }
     },
     {
@@ -160,7 +156,7 @@
       "apiVersion": "2022-09-01",
       "name": "[format('{0}functions', parameters('name'))]",
       "location": "[parameters('location')]",
-      "kind": "functionapp,linux",
+      "kind": "functionapp",
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}plan', parameters('name')))]",
         "httpsOnly": true,
@@ -199,7 +195,7 @@
       "name": "[format('{0}/{1}', format('{0}functions', parameters('name')), 'web')]",
       "kind": "string",
       "properties": {
-        "linuxFxVersion": "DOTNET|6.0",
+        "netFrameworkVersion": "v6.0",
         "minTlsVersion": "1.2",
         "alwaysOn": true,
         "cors": {
@@ -233,7 +229,7 @@
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-09-01",
       "name": "[format('{0}web', parameters('name'))]",
-      "kind": "app,linux",
+      "kind": "app",
       "location": "[parameters('location')]",
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}plan', parameters('name')))]",
@@ -250,7 +246,7 @@
       "kind": "string",
       "properties": {
         "minTlsVersion": "1.2",
-        "linuxFxVersion": "DOTNETCORE|7.0"
+        "netFrameworkVersion": "v7.0"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', format('{0}web', parameters('name')))]"

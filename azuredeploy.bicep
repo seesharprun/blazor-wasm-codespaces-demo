@@ -96,12 +96,8 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 resource hostingPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: '${name}plan'
   location: location
-  kind: 'linux'
   sku: {
     name: 'B1'
-  }
-  properties: {
-    reserved: true
   }
 }
 
@@ -121,7 +117,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
   name: '${name}functions'
   location: location
-  kind: 'functionapp,linux'
+  kind: 'functionapp'
   properties: {
     serverFarmId: hostingPlan.id
     httpsOnly: true
@@ -151,7 +147,7 @@ resource functionAppConfiguration 'Microsoft.Web/sites/config@2022-09-01' = {
   name: 'web'
   kind: 'string'
   properties: {
-    linuxFxVersion: 'DOTNET|6.0'
+    netFrameworkVersion: 'v6.0'
     minTlsVersion: '1.2'
     alwaysOn: true
     cors: {
@@ -179,7 +175,7 @@ resource functionAppDeployment 'Microsoft.Web/sites/sourcecontrols@2022-09-01' =
 
 resource webApp 'Microsoft.Web/sites@2022-09-01' = {
   name: '${name}web'
-  kind: 'app,linux'
+  kind: 'app'
   location: location
   properties: {
     serverFarmId: hostingPlan.id
@@ -193,7 +189,7 @@ resource webAppConfiguration 'Microsoft.Web/sites/config@2022-09-01' = {
   kind: 'string'
   properties: {
     minTlsVersion: '1.2'
-    linuxFxVersion: 'DOTNETCORE|7.0'
+    netFrameworkVersion: 'v7.0'
   }
 }
 
