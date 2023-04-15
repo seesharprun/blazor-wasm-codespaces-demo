@@ -164,6 +164,11 @@ resource functionAppConfiguration 'Microsoft.Web/sites/config@2022-03-01' = {
   properties: {
     minTlsVersion: '1.2'
     linuxFxVersion: 'DOTNET|6.0'
+    cors: {
+      allowedOrigins: [
+        '*'
+      ]
+    }
   }
 }
 
