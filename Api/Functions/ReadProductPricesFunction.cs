@@ -3,7 +3,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using static Cosmos.Example.Shared.Constants.Cosmos;
 
-namespace Cosmos.Example.Feed.Functions;
+namespace Cosmos.Example.Api.Functions;
 
 public static class ReadProductPrices
 {

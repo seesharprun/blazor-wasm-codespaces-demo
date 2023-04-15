@@ -145,6 +145,7 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
 resource functionAppSettings 'Microsoft.Web/sites/config@2022-03-01' = {
   parent: functionApp
   name: 'appsettings'
+  kind: 'string'
   properties: {
     AzureWebJobsStorage: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
@@ -152,7 +153,7 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2022-03-01' = {
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'InstrumentationKey=${applicationInsights.properties.InstrumentationKey};IngestionEndpoint=https://eastus2-0.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/'
     FUNCTIONS_EXTENSION_VERSION: '~4'
     FUNCTIONS_WORKER_RUNTIME: 'dotnet'
-    PROJECT: 'Feed/Cosmos.Example.Feed.csproj'
+    PROJECT: 'Api/Cosmos.Example.Api.csproj'
     WEBSITE_CONTENTSHARE: toLower('${name}functionshare')
     AZURE_COSMOS_DB_CONNECTION_STRING: 'AccountEndpoint=${cosmosDbAccount.properties.documentEndpoint};AccountKey=${cosmosDbAccount.listKeys().primaryMasterKey};'
   }
@@ -161,12 +162,13 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2022-03-01' = {
 resource functionAppConfiguration 'Microsoft.Web/sites/config@2022-03-01' = {
   parent: functionApp
   name: 'web'
+  kind: 'string'
   properties: {
     minTlsVersion: '1.2'
     linuxFxVersion: 'DOTNET|6.0'
     cors: {
       allowedOrigins: [
-        'https://${staticWebApp.properties.defaultHostName}'
+        'https://${staticWebApp.properties.defaultHostname}'
         'https://portal.azure.com'
       ]
     }
@@ -175,10 +177,6 @@ resource functionAppConfiguration 'Microsoft.Web/sites/config@2022-03-01' = {
 
 resource functionAppDeployment 'Microsoft.Web/sites/sourcecontrols@2021-03-01' = {
   parent: functionApp
-  dependsOn: [
-    functionAppSettings
-    functionAppConfiguration
-  ]
   name: 'web'
   properties: {
     repoUrl: 'https://github.com/seesharprun/blazor-wasm-codespaces-demo.git'
@@ -194,15 +192,21 @@ resource staticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
     name: 'Free'
   }
   properties: {
-    provider: 'custom'
     repositoryUrl: 'https://github.com/seesharprun/blazor-wasm-codespaces-demo.git'
     branch: 'main'
     buildProperties: {
       appLocation: 'Client'
-      apiLocation: 'Api'
       outputLocation: 'bin\\wwwroot'
       appBuildCommand: 'dotnet publish -c Release -o bin'
-      apiBuildCommand: 'dotnet publish -c Release'
     }
+  }
+}
+
+resource staticWebAppConfiguration 'Microsoft.Web/staticSites/config@2022-09-01' = {
+  parent: staticWebApp
+  name: 'appsettings'
+  kind: 'string'
+  properties: {
+    API__ENDPOINT: 'https://${functionApp.properties.defaultHostName}/'
   }
 }
